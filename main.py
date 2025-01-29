@@ -4,6 +4,8 @@ import json
 
 from playwright.sync_api import sync_playwright
 
+from frameworks import supported_frameworks
+
 logging.basicConfig(level=logging.INFO,
                     format="%(asctime)sZ %(levelname)s %(message)s",
                     datefmt="%Y-%m-%dT%H:%M:%S"
@@ -62,25 +64,7 @@ def extract_table_via_playwright(url):
 
 def cache_config_conformance_packs(tmp_cache_file):
     base_url = "https://docs.aws.amazon.com/config/latest/developerguide/"
-    frameworks = [
-        "operational-best-practices-for-wa-Reliability-Pillar",
-        "operational-best-practices-for-wa-Security-Pillar",
-        "operational-best-practices-for-cis_aws_benchmark_level_1",
-        "operational-best-practices-for-cis_aws_benchmark_level_2",
-        "operational-best-practices-for-cis-critical-security-controls-v8",
-        "operational-best-practices-for-cis-critical-security-controls-v8-ig2",
-        "operational-best-practices-for-cis-critical-security-controls-v8-ig3",
-        "operational-best-practices-for-cis_top_20",
-        "operational-best-practices-for-cmmc_2.0_level_1",
-        "operational-best-practices-for-cmmc_2.0_level_2",
-        "operational-best-practices-for-fedramp-low",
-        "operational-best-practices-for-fedramp-moderate",
-        "operational-best-practices-for-fedramp-high-part-1",
-        "operational-best-practices-for-fedramp-high-part-2",
-        "operational-best-practices-for-nist-800-53_rev_5",
-        "operational-best-practices-for-nist_800-171",
-        "operational-best-practices-for-nist_800-172",
-    ]
+    frameworks = [ f.aws_name for f in supported_frameworks ]
     framework_mappings = {}
     for idx, framework in enumerate(frameworks):
         log.info(f"Processing framework '{framework}' ({idx + 1}/{len(frameworks)})")
@@ -135,9 +119,9 @@ See also [AWS docs for rule](https://docs.aws.amazon.com/config/latest/developer
 
 """
         for control in control_details["controls"]:
-            mappings_file_content += f"- [{control['framework']} - {control['control_id']}](todo.md) ({control['control_description']})\n"
-
-
+            security_framework = list(filter(lambda f: f.aws_name == control["framework"], supported_frameworks))[0]
+            control_id = control["control_id"]
+            mappings_file_content += f"- [{security_framework.display_name} - {control_id}]({security_framework.extract_link_from_control(security_framework.aws_name, control_id)}) ({control['control_description']})\n"
 
     with open("config_rule_security_controls.md", "w") as mappings_file:
         mappings_file.write(mappings_file_content)
