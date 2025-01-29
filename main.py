@@ -1,3 +1,4 @@
+import datetime
 import logging
 import json
 
@@ -92,7 +93,7 @@ def cache_config_conformance_packs(tmp_cache_file):
     json.dump(framework_mappings, open(tmp_cache_file, "w"), indent=4)
 
 
-def group_by_config_rule(tmp_cache_file):
+def group_by_config_rule(tmp_cache_file, control_by_config_rule_filename):
     framework_mappings = json.load(open(tmp_cache_file, "r"))
     config_rules = {}
     for framework, controls in framework_mappings.items():
@@ -112,12 +113,41 @@ def group_by_config_rule(tmp_cache_file):
                 'control_description': control_description,
                 'control_guidance': control_guidance,
             })
-    json.dump(config_rules, open("controls_by_config_rule.json", "w"), indent=4)
+    json.dump(config_rules, open(control_by_config_rule_filename, "w"), indent=4)
+
+
+def convert_control_mapping_to_markdown_view(control_by_config_rule_filename):
+
+    control_by_config_rule = json.load(open(control_by_config_rule_filename, "r"))
+
+    mappings_file_content = f"# AWS Config Compliance Mappings ({datetime.date.today()})\n"
+    mappings_file_content += "This content is generated, sourced from public AWS documentation which is Creative Commons licensed.\n"
+    for config_rule_name, control_details in control_by_config_rule.items():
+        mappings_file_content += f"""
+## {config_rule_name}\n
+See also [AWS docs for rule](https://docs.aws.amazon.com/config/latest/developerguide/{config_rule_name}.html)\n
+
+### Guidance
+
+{control_details['controls'][0]['control_guidance']}
+
+### Applicable Security Controls
+
+"""
+        for control in control_details["controls"]:
+            mappings_file_content += f"- [{control['framework']} - {control['control_id']}](todo.md) ({control['control_description']})\n"
+
+
+
+    with open("config_rule_security_controls.md", "w") as mappings_file:
+        mappings_file.write(mappings_file_content)
 
 def main():
     tmp_cache_file = "framework_mappings.json"
     cache_config_conformance_packs(tmp_cache_file)
-    group_by_config_rule(tmp_cache_file)
+    control_by_config_rule_filename = "controls_by_config_rule.json"
+    group_by_config_rule(tmp_cache_file, control_by_config_rule_filename)
+    convert_control_mapping_to_markdown_view(control_by_config_rule_filename)
 
 
 if __name__ == "__main__":
