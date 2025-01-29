@@ -107,9 +107,10 @@ def convert_control_mapping_to_markdown_view(control_by_config_rule_filename):
     mappings_file_content = f"# AWS Config Compliance Mappings ({datetime.date.today()})\n"
     mappings_file_content += "This content is generated, sourced from public AWS documentation which is Creative Commons licensed.\n"
     for config_rule_name, control_details in control_by_config_rule.items():
+        aws_docs_link = "Manual process check" if "(Process Check)" in config_rule_name else f"See also [AWS docs for rule](https://docs.aws.amazon.com/config/latest/developerguide/{config_rule_name}.html)\n"
         mappings_file_content += f"""
 ## {config_rule_name}\n
-See also [AWS docs for rule](https://docs.aws.amazon.com/config/latest/developerguide/{config_rule_name}.html)\n
+{aws_docs_link}
 
 ### Guidance
 

@@ -6743,8 +6743,7 @@ Ensure the contact email and telephone number for AWS accounts are current and m
 
 ## account-security-contact-configured (Process Check)
 
-See also [AWS docs for rule](https://docs.aws.amazon.com/config/latest/developerguide/account-security-contact-configured (Process Check).html)
-
+Manual process check
 
 ### Guidance
 
@@ -6757,8 +6756,7 @@ Ensure the contact email and telephone number for the your organizations securit
 
 ## root-account-regular-use (Process Check)
 
-See also [AWS docs for rule](https://docs.aws.amazon.com/config/latest/developerguide/root-account-regular-use (Process Check).html)
-
+Manual process check
 
 ### Guidance
 
@@ -6771,8 +6769,7 @@ Ensure the use of the root account is avoided for everyday tasks. Within IAM, ru
 
 ## iam-user-console-and-api-access-at-creation (Process Check)
 
-See also [AWS docs for rule](https://docs.aws.amazon.com/config/latest/developerguide/iam-user-console-and-api-access-at-creation (Process Check).html)
-
+Manual process check
 
 ### Guidance
 
@@ -6785,8 +6782,7 @@ Ensure access keys are not setup during the initial user setup for all users tha
 
 ## iam-user-single-access-key (Process Check)
 
-See also [AWS docs for rule](https://docs.aws.amazon.com/config/latest/developerguide/iam-user-single-access-key (Process Check).html)
-
+Manual process check
 
 ### Guidance
 
@@ -6861,8 +6857,7 @@ AWS Identity and Access Management (IAM) can help you manage access permissions 
 
 ## iam-expired-certificates (Process Check)
 
-See also [AWS docs for rule](https://docs.aws.amazon.com/config/latest/developerguide/iam-expired-certificates (Process Check).html)
-
+Manual process check
 
 ### Guidance
 
@@ -6875,8 +6870,7 @@ Ensure that all the expired SSL/TLS certificates stored in IAM are removed. From
 
 ## iam-access-analyzer-enabled (Process Check)
 
-See also [AWS docs for rule](https://docs.aws.amazon.com/config/latest/developerguide/iam-access-analyzer-enabled (Process Check).html)
-
+Manual process check
 
 ### Guidance
 
@@ -6889,8 +6883,7 @@ Ensure that IAM Access Analyzer is enabled. Within the IAM section of the consol
 
 ## alarm-unauthorized-api-calls (Process Check)
 
-See also [AWS docs for rule](https://docs.aws.amazon.com/config/latest/developerguide/alarm-unauthorized-api-calls (Process Check).html)
-
+Manual process check
 
 ### Guidance
 
@@ -6903,8 +6896,7 @@ Ensure a log metric filter and an alarm exists for unauthorized API calls. For f
 
 ## alarm-sign-in-without-mfa (Process Check)
 
-See also [AWS docs for rule](https://docs.aws.amazon.com/config/latest/developerguide/alarm-sign-in-without-mfa (Process Check).html)
-
+Manual process check
 
 ### Guidance
 
@@ -6917,8 +6909,7 @@ Ensure a log metric filter and an alarm exists for AWS Management Console sign-i
 
 ## alarm-root-account-use (Process Check)
 
-See also [AWS docs for rule](https://docs.aws.amazon.com/config/latest/developerguide/alarm-root-account-use (Process Check).html)
-
+Manual process check
 
 ### Guidance
 
@@ -6931,8 +6922,7 @@ Ensure a log metric filter and an alarm exists for usage of the root account. Fo
 
 ## alarm-iam-policy-change (Process Check)
 
-See also [AWS docs for rule](https://docs.aws.amazon.com/config/latest/developerguide/alarm-iam-policy-change (Process Check).html)
-
+Manual process check
 
 ### Guidance
 
@@ -6945,8 +6935,7 @@ Ensure a log metric filter and an alarm exists for IAM policy changes. For furth
 
 ## alarm-cloudtrail-config-change (Process Check)
 
-See also [AWS docs for rule](https://docs.aws.amazon.com/config/latest/developerguide/alarm-cloudtrail-config-change (Process Check).html)
-
+Manual process check
 
 ### Guidance
 
@@ -6959,8 +6948,7 @@ Ensure a log metric filter and an alarm exists for AWS CloudTrail configuration 
 
 ## alarm-s3-bucket-policy-change (Process Check)
 
-See also [AWS docs for rule](https://docs.aws.amazon.com/config/latest/developerguide/alarm-s3-bucket-policy-change (Process Check).html)
-
+Manual process check
 
 ### Guidance
 
@@ -6973,8 +6961,7 @@ Ensure a log metric filter and an alarm exists for Amazon S3 bucket policy chang
 
 ## alarm-vpc-network-gateway-change (Process Check)
 
-See also [AWS docs for rule](https://docs.aws.amazon.com/config/latest/developerguide/alarm-vpc-network-gateway-change (Process Check).html)
-
+Manual process check
 
 ### Guidance
 
@@ -6987,8 +6974,7 @@ Ensure a log metric filter and an alarm exists for changes to network gateways. 
 
 ## alarm-vpc-route-table-change (Process Check)
 
-See also [AWS docs for rule](https://docs.aws.amazon.com/config/latest/developerguide/alarm-vpc-route-table-change (Process Check).html)
-
+Manual process check
 
 ### Guidance
 
@@ -7001,8 +6987,7 @@ Ensure a log metric filter and an alarm exists for route table changes. For furt
 
 ## alarm-vpc-change (Process Check)
 
-See also [AWS docs for rule](https://docs.aws.amazon.com/config/latest/developerguide/alarm-vpc-change (Process Check).html)
-
+Manual process check
 
 ### Guidance
 
@@ -7015,8 +7000,7 @@ Ensure a log metric filter and an alarm exists for Amazon Virtual Private Cloud 
 
 ## alarm-organizations-change (Process Check)
 
-See also [AWS docs for rule](https://docs.aws.amazon.com/config/latest/developerguide/alarm-organizations-change (Process Check).html)
-
+Manual process check
 
 ### Guidance
 
@@ -7045,8 +7029,7 @@ Ensure no network ACLs allow public ingress to the remote server administration 
 
 ## config-enabled-all-regions (Process Check)
 
-See also [AWS docs for rule](https://docs.aws.amazon.com/config/latest/developerguide/config-enabled-all-regions (Process Check).html)
-
+Manual process check
 
 ### Guidance
 
@@ -7079,8 +7062,7 @@ Enable key rotation to ensure that keys are rotated once they have reached the e
 
 ## alarm-console-auth-failures (Process Check)
 
-See also [AWS docs for rule](https://docs.aws.amazon.com/config/latest/developerguide/alarm-console-auth-failures (Process Check).html)
-
+Manual process check
 
 ### Guidance
 
@@ -7092,8 +7074,7 @@ Ensure a log metric filter and an alarm exists for AWS Management Console authen
 
 ## alarm-kms-disable-or-delete-cmk (Process Check)
 
-See also [AWS docs for rule](https://docs.aws.amazon.com/config/latest/developerguide/alarm-kms-disable-or-delete-cmk (Process Check).html)
-
+Manual process check
 
 ### Guidance
 
@@ -7105,8 +7086,7 @@ Ensure a log metric filter and an alarm exists for disabling or scheduled deleti
 
 ## alarm-aws-config-change (Process Check)
 
-See also [AWS docs for rule](https://docs.aws.amazon.com/config/latest/developerguide/alarm-aws-config-change (Process Check).html)
-
+Manual process check
 
 ### Guidance
 
@@ -7118,8 +7098,7 @@ Ensure a log metric filter and an alarm exists for AWS Config configuration chan
 
 ## alarm-vpc-secrity-group-change (Process Check)
 
-See also [AWS docs for rule](https://docs.aws.amazon.com/config/latest/developerguide/alarm-vpc-secrity-group-change (Process Check).html)
-
+Manual process check
 
 ### Guidance
 
@@ -7131,8 +7110,7 @@ Ensure a log metric filter and an alarm exists for security group changes. For f
 
 ## alarm-vpc-nacl-change (Process Check)
 
-See also [AWS docs for rule](https://docs.aws.amazon.com/config/latest/developerguide/alarm-vpc-nacl-change (Process Check).html)
-
+Manual process check
 
 ### Guidance
 
@@ -7144,8 +7122,7 @@ Ensure a log metric filter and an alarm exists for changes to Network Access Con
 
 ## vpc-peering-least-access (Process Check)
 
-See also [AWS docs for rule](https://docs.aws.amazon.com/config/latest/developerguide/vpc-peering-least-access (Process Check).html)
-
+Manual process check
 
 ### Guidance
 
@@ -7490,8 +7467,7 @@ Manage access to the AWS Cloud by enabling s3_ bucket_policy_grantee_check. This
 
 ## vuln-management-plan-exists (Process Check)
 
-See also [AWS docs for rule](https://docs.aws.amazon.com/config/latest/developerguide/vuln-management-plan-exists (Process Check).html)
-
+Manual process check
 
 ### Guidance
 
@@ -7503,8 +7479,7 @@ Ensure a vulnerability management plan is developed and implemented in order to 
 
 ## response-plan-tested (Process Check)
 
-See also [AWS docs for rule](https://docs.aws.amazon.com/config/latest/developerguide/response-plan-tested (Process Check).html)
-
+Manual process check
 
 ### Guidance
 
