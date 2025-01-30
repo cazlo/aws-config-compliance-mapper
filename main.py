@@ -130,7 +130,7 @@ def convert_control_mapping_to_markdown_view(control_by_config_rule_filename):
 def main():
     tmp_cache_file = "framework_mappings.json"
     cache_config_conformance_packs(tmp_cache_file)
-    control_by_config_rule_filename = "controls_by_config_rule.json"
+    control_by_config_rule_filename = "frontend/src/controls_by_config_rule.json"
     group_by_config_rule(tmp_cache_file, control_by_config_rule_filename)
     convert_control_mapping_to_markdown_view(control_by_config_rule_filename)
 
