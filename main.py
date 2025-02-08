@@ -79,7 +79,7 @@ def cache_config_conformance_packs(tmp_cache_file):
     json.dump(framework_mappings, open(tmp_cache_file, "w"), indent=4)
 
 
-def group_by_config_rule(tmp_cache_file, control_by_config_rule_filename):
+def group_by_config_rule(tmp_cache_file, control_by_config_rule_filename, version_filename):
     framework_mappings = json.load(open(tmp_cache_file, "r"))
     config_rules = {}
     for framework, controls in framework_mappings.items():
@@ -99,7 +99,8 @@ def group_by_config_rule(tmp_cache_file, control_by_config_rule_filename):
                 'control_description': control_description,
                 'control_guidance': control_guidance,
             })
-    config_rules["CREATION_DATE"] = datetime.datetime.now(datetime.UTC).isoformat()
+    version = {"CREATION_DATE" : datetime.datetime.now(datetime.UTC).isoformat()}
+    json.dump(version, open(version_filename, "w"), indent=4)
     json.dump(config_rules, open(control_by_config_rule_filename, "w"), indent=4, sort_keys=True)
 
 
@@ -109,7 +110,6 @@ def convert_control_mapping_to_markdown_view(control_by_config_rule_filename):
 
     mappings_file_content = f"# AWS Config Compliance Mappings ({datetime.date.today()})\n"
     mappings_file_content += "This content is generated, sourced from public AWS documentation which is Creative Commons licensed.\n"
-    del control_by_config_rule["CREATION_DATE"]
     for config_rule_name, control_details in control_by_config_rule.items():
         aws_docs_link = "Manual process check" if "(Process Check)" in config_rule_name else f"See also [AWS docs for rule](https://docs.aws.amazon.com/config/latest/developerguide/{config_rule_name}.html)\n"
         mappings_file_content += f"""
@@ -135,7 +135,8 @@ def main():
     tmp_cache_file = "framework_mappings.json"
     cache_config_conformance_packs(tmp_cache_file)
     control_by_config_rule_filename = "frontend/src/controls_by_config_rule.json"
-    group_by_config_rule(tmp_cache_file, control_by_config_rule_filename)
+    version_filename = "frontend/src/version.json"
+    group_by_config_rule(tmp_cache_file, control_by_config_rule_filename, version_filename)
     convert_control_mapping_to_markdown_view(control_by_config_rule_filename)
 
 

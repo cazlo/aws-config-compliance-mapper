@@ -1,0 +1,69 @@
+name: Deploy static content to GitHub Pages
+
+on:
+  schedule:
+    - cron: '22 8 * * *' # UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  check-latest-config-rules:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          pip install uv
+          uv sync
+          # install browsers
+          uv run playwright install 
+
+      - name: Run script
+        run: |
+          uv run main.py
+          git diff > git-diff.log
+
+      - name: Upload output artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: latest-config-rules
+          path: |
+            frontend/src/controls_by_config_rule.json
+            git-diff.log
+
+      - name: Check for changes
+        id: git-check
+        run: |
+            # git diff returns a non-zero exit code if differences are found.
+            if git diff --quiet frontend/src/controls_by_config_rule.json; then
+              echo "No changes detected."
+              echo "changes=false" >> "$GITHUB_OUTPUT"
+            else
+              echo "Changes detected."
+              echo "changes=true" >> "$GITHUB_OUTPUT"
+            fi
+
+      - name: Commit and push changes
+        if: steps.git-check.outputs.changes == 'true'
+        run: |
+            # Configure git with a bot identity.
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            
+            # Stage all changes.
+            git add frontend/src/controls_by_config_rule.json frontend/src/version.json
+            
+            # Commit the changes.
+            git commit -m "Automated update from CI update run"
+            
+            # Push the commit to the main branch.
+            git push origin main

@@ -1,5 +1,6 @@
 import React, {useState} from 'react';
 import rulesData from './controls_by_config_rule.json';
+import versionData from './version.json';
 import Fuse from 'fuse.js';
 
 import {
@@ -47,8 +48,7 @@ function FrameworkCard({framework, controls})  {
     </Paper>
 }
 
-const CREATION_DATE = rulesData["CREATION_DATE"]
-delete rulesData["CREATION_DATE"]
+const CREATION_DATE = versionData["CREATION_DATE"]
 
 const allControls = [];
 for (const ruleName in rulesData) {
