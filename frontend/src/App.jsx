@@ -18,10 +18,14 @@ import {
     TableRow,
     Chip,
     Stack,
-    Typography
+    Typography,
+    Tooltip,
 } from '@mui/material';
 import {ThemeProvider, createTheme} from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
+
+import {getControlIcon, getControlLink} from './util.jsx';
+import PropTypes from "prop-types";
 
 const theme = createTheme({
     palette: {
@@ -29,21 +33,60 @@ const theme = createTheme({
     },
 });
 
-function App() {
-    const allControls = [];
-    for (const ruleName in rulesData) {
-        const rule = rulesData[ruleName];
-        const controls = rule.controls || [];
-        controls.forEach((c) => {
-            allControls.push({
-                ruleName,
-                framework: c.framework.replace("operational-best-practices-for-", ""),
-                control_id: c.control_id,
-                control_description: c.control_description,
-                control_guidance: c.control_guidance,
-            });
+
+function FrameworkCard({framework, controls})  {
+    return <Paper sx={{ maxWidth: 345 }} variant={'outlined'}>
+        <Typography gutterBottom variant="body2" component="div">
+            {framework.replaceAll("-", " ").replaceAll("_", " ")}
+        </Typography>
+          {controls.map((control, index) => (
+              <Tooltip key={`${index}${control.control_id}${framework}`} title={control.control_description} disableFocusListener disableTouchListener>
+                  <Chip  label={control.control_id} variant={"outlined"}  clickable component={"a"} href={control.url} size="sm" icon={getControlIcon(framework, control)} />
+              </Tooltip>
+          ))}
+    </Paper>
+}
+
+const allControls = [];
+for (const ruleName in rulesData) {
+    const rule = rulesData[ruleName];
+    const controls = rule.controls || [];
+    controls.forEach((c) => {
+        const framework = c.framework.replace("operational-best-practices-for-", "")
+        allControls.push({
+            ruleName,
+            framework: framework,
+            control_id: c.control_id,
+            control_description: c.control_description,
+            control_guidance: c.control_guidance,
+            url: getControlLink(framework, c.control_id)
         });
-    }
+    });
+}
+
+function DebounceInput(props) {
+  const { handleDebounce, debounceTimeout, ...other } = props;
+
+  const timerRef = React.useRef(undefined);
+
+  const handleChange = (event) => {
+    clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(() => {
+      handleDebounce(event.target.value);
+    }, debounceTimeout);
+  };
+
+  return <TextField {...other} onChange={handleChange} />;
+}
+
+DebounceInput.propTypes = {
+  debounceTimeout: PropTypes.number.isRequired,
+  handleDebounce: PropTypes.func.isRequired,
+};
+
+
+function App() {
+
 
     const [query, setQuery] = useState('');
     const [selectedFramework, setSelectedFramework] = useState('');
@@ -55,7 +98,7 @@ function App() {
     const fuse = new Fuse(allControls, {
         keys: [
             'ruleName',
-            'framework',
+            // 'framework',
             'control_id',
             'control_description',
             'control_guidance',
@@ -63,36 +106,50 @@ function App() {
         threshold: 0.3, // lower = stricter matching, higher = fuzzier
     });
 
-    const fuseResults = query ? fuse.search(query).map((result) => result.item) : allControls;
+    const fuseResults = query ? new Set(fuse.search(query).map((result) => result.item.ruleName)) : null;
 
-    const filteredResults = selectedFramework
-        ? fuseResults.filter((item) => item.framework === selectedFramework)
-        : fuseResults;
+    const matchingRules = Object.keys(rulesData).reduce((acc, configRule) => {
 
-    const groupedByRule = filteredResults.reduce((acc, control) => {
-        if (!acc[control.ruleName]) {
-            acc[control.ruleName] = [];
+        const controls = rulesData[configRule].controls
+        let hidden = false
+        if (query && !fuseResults.has(configRule)) {
+            hidden = true;
         }
-        acc[control.ruleName].push(control);
-        return acc;
-    }, {});
 
-    const groupedEntries = Object.entries(groupedByRule);
+        if (selectedFramework) {
+            let hasSelectedFramework = false;
+            for (const control of controls) {
+                if (control.framework?.includes(selectedFramework)) {
+                    hasSelectedFramework = true;
+                    break;
+                }
+            }
+            if (!hasSelectedFramework) {
+                hidden = true;
+            }
+        }
+        acc.push({
+            ruleName: configRule,
+            controls: controls,
+            hidden: hidden
+        });
+        return acc;
+    }, []);
 
     return (
         <ThemeProvider theme={theme}>
             <CssBaseline/>
-            <Box sx={{width: '100%', maxWidth: '1200px', mx: 'auto', p: 2}}>
+            <Box sx={{width: '100%', maxWidth: '95%', mx: 'auto', p: 2}}>
                 <h1>Config Rules Search</h1>
 
                 {/* Search Field */}
-                <TextField
+                <DebounceInput
                     label="Search"
                     variant="outlined"
                     fullWidth
-                    value={query}
-                    onChange={(e) => setQuery(e.target.value)}
                     sx={{mb: 2}}
+                    debounceTimeout={1000}
+                    handleDebounce={(value) => setQuery(value)}
                 />
 
                 {/* Framework Filter */}
@@ -113,7 +170,7 @@ function App() {
                     </Select>
                 </FormControl>
 
-                <h2>{groupedEntries.length} Results</h2>
+                <h2>{matchingRules.filter(r => !r.hidden).length} Config Rules</h2>
 
                 {/* Responsive Table */}
                 <TableContainer
@@ -136,39 +193,58 @@ function App() {
                             <TableRow>
                                 <TableCell>Config Rule</TableCell>
                                 <TableCell>Guidance</TableCell>
-                                <TableCell>Frameworks</TableCell>
-                                <TableCell>Control Details</TableCell>
+                                <TableCell>CIS</TableCell>
+                                <TableCell>AWS Well Architected Framework</TableCell>
+                                <TableCell>CUI</TableCell>
+                                <TableCell>FedRAMP</TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {groupedEntries.length > 0 ? (
-                                groupedEntries.map(([ruleName, controls]) => {
+                            {matchingRules.length > 0 ? (
+                                matchingRules.map(({ruleName, controls, hidden}) => {
                                     // Collect unique frameworks from this rule's matched controls
                                     const frameworksSet = new Set(controls.map((c) => c.framework));
                                     const frameworks = Array.from(frameworksSet);
+                                    frameworks.sort()
 
                                     return (
-                                        <TableRow key={ruleName}>
-                                            <TableCell>{ruleName}</TableCell>
+                                        <TableRow key={ruleName} sx={hidden ? {display: "none"}: {}}>
+                                          <TableCell>
+                                                {ruleName.includes("(Process Check)")
+                                                    ? ruleName
+                                                    : <a href={`https://docs.aws.amazon.com/config/latest/developerguide/${ruleName}.html`}>{ruleName}</a>
+                                                }
+                                            </TableCell>
                                           <TableCell>{controls[0]?.control_guidance}</TableCell>
                                           <TableCell>
                                               <Stack direction="row" spacing={1} flexWrap="wrap">
-                                                  {frameworks.map((fw) => (
-                                                        <Chip key={fw} label={fw}/>
+                                                  {frameworks.filter(f => f.includes('cis')).map((fw) => (
+                                                      <FrameworkCard key={fw} framework={fw} controls={controls.filter(c => c.framework === fw)} />
+                                                        // <Chip key={fw} label={fw}/>
                                                     ))}
                                                 </Stack>
                                           </TableCell>
                                           <TableCell>
                                               <Stack direction="row" spacing={1} flexWrap="wrap">
-                                                  {controls.map((c) => (
-                                                        <Typography variant="body2" key={`${c.framework}-${c.control_id}`}>
-                                                            <a>{c.control_id}</a>
-                                                            {c.framework.includes('800-171') ||
-                                                             c.framework.includes('800-53')  ||
-                                                             c.framework.includes('cmmc')  ||
-                                                             c.framework.includes('fedramp-low') ? `:${c.control_description}` : ''}
-                                                        </Typography>
-                                                        // todo <a> to upstream link
+                                                  {frameworks.filter(f => f.includes('Pillar')).map((fw) => (
+                                                      <FrameworkCard key={fw} framework={fw} controls={controls.filter(c => c.framework === fw)} />
+                                                        // <Chip key={fw} label={fw}/>
+                                                    ))}
+                                                </Stack>
+                                          </TableCell>
+                                          <TableCell>
+                                              <Stack direction="row" spacing={1} flexWrap="wrap">
+                                                  {frameworks.filter(f => (f.includes('171')||f.includes('cmmc')||f.includes('172'))).map((fw) => (
+                                                      <FrameworkCard key={fw} framework={fw} controls={controls.filter(c => c.framework === fw)} />
+                                                        // <Chip key={fw} label={fw}/>
+                                                    ))}
+                                                </Stack>
+                                          </TableCell>
+                                          <TableCell>
+                                              <Stack direction="row" spacing={1} flexWrap="wrap">
+                                                  {frameworks.filter(f => (f.includes('53')||f.includes('fedramp'))).map((fw) => (
+                                                      <FrameworkCard key={fw} framework={fw} controls={controls.filter(c => c.framework === fw)} />
+                                                        // <Chip key={fw} label={fw}/>
                                                     ))}
                                                 </Stack>
                                           </TableCell>
