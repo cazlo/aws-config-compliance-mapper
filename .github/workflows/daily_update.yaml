@@ -1,8 +1,8 @@
-name: Deploy static content to GitHub Pages
+name: Daily Update Check
 
 on:
   schedule:
-    - cron: '22 8 * * *' # UTC
+    - cron: '22 9 * * *' # UTC
   workflow_dispatch:
 
 permissions:
@@ -11,6 +11,8 @@ permissions:
 jobs:
   check-latest-config-rules:
     runs-on: ubuntu-latest
+    outputs:
+      changes: ${{ steps.git-check.outputs.changes }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -63,7 +65,61 @@ jobs:
             git add frontend/src/controls_by_config_rule.json frontend/src/version.json
             
             # Commit the changes.
-            git commit -m "Automated update from CI update run"
+            git commit -m "Automated update from CI"
             
             # Push the commit to the main branch.
             git push origin main
+            # note this will not trigger the `deploy.yml` CI workflow
+
+  build:
+    needs: check-latest-config-rules
+    runs-on: ubuntu-latest
+    if: needs.git-check.outputs.changes == 'true'
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v3
+
+      - name: Download latest config rules
+        uses: actions/download-artifact@v4
+        with:
+          name: latest-config-rules
+
+      - name: Set up Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        working-directory: ./frontend
+        run: npm ci
+
+      - name: Build
+        working-directory: ./frontend
+        run: npm run build
+
+      - name: Upload static files as artifact
+        id: deployment
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: frontend/dist
+
+  deploy:
+    # Add a dependency to the build job
+    needs: build
+
+    # Grant GITHUB_TOKEN the permissions required to make a Pages deployment
+    permissions:
+      pages: write      # to deploy to Pages
+      id-token: write   # to verify the deployment originates from an appropriate source
+
+    # Deploy to the github-pages environment
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    # Specify runner + deployment step
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
