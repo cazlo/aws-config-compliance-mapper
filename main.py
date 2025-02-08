@@ -1,4 +1,5 @@
 import datetime
+import time
 import logging
 import json
 
@@ -10,6 +11,7 @@ logging.basicConfig(level=logging.INFO,
                     format="%(asctime)sZ %(levelname)s %(message)s",
                     datefmt="%Y-%m-%dT%H:%M:%S"
                     )
+logging.Formatter.converter = time.gmtime
 log = logging.getLogger(__name__)
 
 
@@ -97,7 +99,8 @@ def group_by_config_rule(tmp_cache_file, control_by_config_rule_filename):
                 'control_description': control_description,
                 'control_guidance': control_guidance,
             })
-    json.dump(config_rules, open(control_by_config_rule_filename, "w"), indent=4)
+    config_rules["CREATION_DATE"] = datetime.datetime.now(datetime.UTC).isoformat()
+    json.dump(config_rules, open(control_by_config_rule_filename, "w"), indent=4, sort_keys=True)
 
 
 def convert_control_mapping_to_markdown_view(control_by_config_rule_filename):
@@ -106,6 +109,7 @@ def convert_control_mapping_to_markdown_view(control_by_config_rule_filename):
 
     mappings_file_content = f"# AWS Config Compliance Mappings ({datetime.date.today()})\n"
     mappings_file_content += "This content is generated, sourced from public AWS documentation which is Creative Commons licensed.\n"
+    del control_by_config_rule["CREATION_DATE"]
     for config_rule_name, control_details in control_by_config_rule.items():
         aws_docs_link = "Manual process check" if "(Process Check)" in config_rule_name else f"See also [AWS docs for rule](https://docs.aws.amazon.com/config/latest/developerguide/{config_rule_name}.html)\n"
         mappings_file_content += f"""

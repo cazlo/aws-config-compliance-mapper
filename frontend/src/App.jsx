@@ -47,6 +47,9 @@ function FrameworkCard({framework, controls})  {
     </Paper>
 }
 
+const CREATION_DATE = rulesData["CREATION_DATE"]
+delete rulesData["CREATION_DATE"]
+
 const allControls = [];
 for (const ruleName in rulesData) {
     const rule = rulesData[ruleName];
@@ -141,6 +144,7 @@ function App() {
             <CssBaseline/>
             <Box sx={{width: '100%', maxWidth: '95%', mx: 'auto', p: 2}}>
                 <h1>Config Rules Search</h1>
+                <h3>Data Version {CREATION_DATE}</h3>
 
                 {/* Search Field */}
                 <DebounceInput
@@ -210,7 +214,7 @@ function App() {
                                     return (
                                         <TableRow key={ruleName} sx={hidden ? {display: "none"}: {}}>
                                           <TableCell>
-                                                {ruleName.includes("(Process Check)")
+                                                {ruleName.toLowerCase().includes("(process check)")
                                                     ? ruleName
                                                     : <a href={`https://docs.aws.amazon.com/config/latest/developerguide/${ruleName}.html`}>{ruleName}</a>
                                                 }
