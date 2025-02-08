@@ -2,15 +2,53 @@ name: Deploy static content to GitHub Pages
 
 on:
   push:
-    branches: [ "main" ]  # or your primary branch name
+    branches: [ "main" ]
 
 jobs:
+  get-latest-config-rules:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          pip install uv
+          uv sync
+          # install browsers
+          uv run playwright install 
+
+      - name: Run script
+        run: |
+          uv run main.py
+          git diff > git-diff.log
+
+      - name: Upload output artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: latest-config-rules
+          path: |
+            frontend/src/controls_by_config_rule.json
+            git-diff.log
+
   build:
+    needs: get-latest-config-rules
+
     runs-on: ubuntu-latest
 
     steps:
       - name: Check out the repository
         uses: actions/checkout@v3
+
+      - name: Download latest config rules
+        uses: actions/download-artifact@v4
+        with:
+          name: latest-config-rules
 
       - name: Set up Node
         uses: actions/setup-node@v3
