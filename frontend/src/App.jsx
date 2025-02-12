@@ -50,22 +50,40 @@ function FrameworkCard({framework, controls})  {
 
 const CREATION_DATE = versionData["CREATION_DATE"]
 
+const normalizeFrameworkName = (framework) => framework.replace("operational-best-practices-for-", "")
+
+const controlsWithUrlByConfigRule = Object.keys(rulesData).reduce((acc, configRule) => {
+    const controlsWithUrl = rulesData[configRule].controls.map(c => {
+        const framework = normalizeFrameworkName(c.framework)
+        return {
+            ...c,
+            framework: framework,
+            url: getControlLink(framework, c.control_id)
+        }
+    })
+    acc[configRule] = {
+        controls: controlsWithUrl
+    }
+    return acc;
+}, {})
+
 const allControls = [];
 for (const ruleName in rulesData) {
     const rule = rulesData[ruleName];
     const controls = rule.controls || [];
     controls.forEach((c) => {
-        const framework = c.framework.replace("operational-best-practices-for-", "")
         allControls.push({
             ruleName,
-            framework: framework,
+            framework: normalizeFrameworkName(c.framework),
             control_id: c.control_id,
             control_description: c.control_description,
             control_guidance: c.control_guidance,
-            url: getControlLink(framework, c.control_id)
         });
     });
 }
+
+const uniqueFrameworks = Array.from(new Set(allControls.map((c) => c.framework)));
+uniqueFrameworks.sort()
 
 function DebounceInput(props) {
   const { handleDebounce, debounceTimeout, ...other } = props;
@@ -94,9 +112,6 @@ function App() {
     const [query, setQuery] = useState('');
     const [selectedFramework, setSelectedFramework] = useState('');
 
-    const uniqueFrameworks = Array.from(new Set(allControls.map((c) => c.framework)));
-    uniqueFrameworks.sort()
-
     // init fuzzy search
     const fuse = new Fuse(allControls, {
         keys: [
@@ -111,9 +126,9 @@ function App() {
 
     const fuseResults = query ? new Set(fuse.search(query).map((result) => result.item.ruleName)) : null;
 
-    const matchingRules = Object.keys(rulesData).reduce((acc, configRule) => {
+    const matchingRules = Object.keys(controlsWithUrlByConfigRule).reduce((acc, configRule) => {
 
-        const controls = rulesData[configRule].controls
+        const controls = controlsWithUrlByConfigRule[configRule].controls
         let hidden = false
         if (query && !fuseResults.has(configRule)) {
             hidden = true;
