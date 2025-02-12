@@ -167,7 +167,7 @@ function App() {
                     variant="outlined"
                     fullWidth
                     sx={{mb: 2}}
-                    debounceTimeout={1000}
+                    debounceTimeout={400}
                     handleDebounce={(value) => setQuery(value)}
                 />
 
