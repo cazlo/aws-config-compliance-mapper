@@ -40,6 +40,7 @@ jobs:
           name: latest-config-rules
           path: |
             frontend/src/controls_by_config_rule.json
+            frontend/src/version.json
             git-diff.log
 
       - name: Check for changes
