@@ -63,7 +63,7 @@ jobs:
             git config user.email "github-actions[bot]@users.noreply.github.com"
             
             # Stage all changes.
-            git add frontend/src/controls_by_config_rule.json frontend/src/version.json
+            git add frontend/src/controls_by_config_rule.json frontend/src/version.json config_rule_security_controls.md
             
             # Commit the changes.
             git commit -m "Automated update from CI"
